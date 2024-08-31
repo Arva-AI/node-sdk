@@ -13,6 +13,29 @@ class ArvaBase {
   }
 }
 
+export type CreateCustomerInput = {
+  agentId: string;
+  registeredName: string;
+  state?: string;
+};
+
+export type UpdateCustomerInput = {
+  id: string;
+  userInfoPatch: Record<string, unknown>;
+  websites: string[];
+  files: {
+    buffer: Buffer;
+    name: string;
+  }[];
+};
+
+export type ReviewCustomerInput = {
+  id: string;
+  verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
+  reason: string;
+  rfi?: string;
+};
+
 class Customers {
   private arva_instance: ArvaBase;
 
@@ -20,15 +43,7 @@ class Customers {
     this.arva_instance = arva_instance;
   }
 
-  async create({
-    agentId,
-    registeredName,
-    state,
-  }: {
-    agentId: string;
-    registeredName: string;
-    state?: string;
-  }) {
+  async create({ agentId, registeredName, state }: CreateCustomerInput) {
     const response = await axios.post(
       this.arva_instance.base_url + "/customer/create",
       {
@@ -48,20 +63,7 @@ class Customers {
     };
   }
 
-  async update({
-    id,
-    userInfoPatch,
-    websites,
-    files,
-  }: {
-    id: string;
-    userInfoPatch: Record<string, unknown>;
-    websites: string[];
-    files: {
-      buffer: Buffer;
-      name: string;
-    }[];
-  }) {
+  async update({ id, userInfoPatch, websites, files }: UpdateCustomerInput) {
     const form = new FormData();
 
     form.append("customerId", id);
@@ -88,17 +90,7 @@ class Customers {
     };
   }
 
-  async review({
-    id,
-    verdict,
-    reason,
-    rfi,
-  }: {
-    id: string;
-    verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
-    reason: string;
-    rfi?: string;
-  }) {
+  async review({ id, verdict, reason, rfi }: ReviewCustomerInput) {
     const response = await axios.post(
       this.arva_instance.base_url + "/customer/review",
       { customerId: id, verdict, reason, rfi },
@@ -119,6 +111,9 @@ export class Arva extends ArvaBase {
   }
 }
 
+/**
+ * This is just for testing against a local instance of the Arva API.
+ */
 export class ArvaLocal extends ArvaBase {
   constructor(api_key: string) {
     super(api_key, "http://localhost:3000/api/v0");
