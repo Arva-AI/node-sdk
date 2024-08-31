@@ -1,0 +1,126 @@
+import axios from "axios";
+import FormData from "form-data";
+
+class ArvaBase {
+  public api_key: string;
+  public base_url: string;
+  public customers: Customers;
+
+  constructor(api_key: string, base_url: string) {
+    this.api_key = api_key;
+    this.base_url = base_url;
+    this.customers = new Customers(this);
+  }
+}
+
+class Customers {
+  private arva_instance: ArvaBase;
+
+  constructor(arva_instance: ArvaBase) {
+    this.arva_instance = arva_instance;
+  }
+
+  async create({
+    agentId,
+    registeredName,
+    state,
+  }: {
+    agentId: string;
+    registeredName: string;
+    state?: string;
+  }) {
+    const response = await axios.post(
+      this.arva_instance.base_url + "/customer/create",
+      {
+        agentId,
+        registeredName,
+        state,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.arva_instance.api_key}`,
+        },
+      }
+    );
+
+    return response.data as {
+      id: string;
+    };
+  }
+
+  async update({
+    id,
+    userInfoPatch,
+    websites,
+    files,
+  }: {
+    id: string;
+    userInfoPatch: Record<string, unknown>;
+    websites: string[];
+    files: {
+      buffer: Buffer;
+      name: string;
+    }[];
+  }) {
+    const form = new FormData();
+
+    form.append("customerId", id);
+    form.append("userInfoPatch", JSON.stringify(userInfoPatch));
+    form.append("websites", JSON.stringify(websites));
+
+    for (const file of files) {
+      form.append("file", file.buffer, file.name);
+    }
+
+    const response = await axios.post(
+      this.arva_instance.base_url + "/customer/update",
+      form,
+      {
+        headers: {
+          Authorization: `Bearer ${this.arva_instance.api_key}`,
+          ...form.getHeaders(),
+        },
+      }
+    );
+
+    return response.data as {
+      customerId: string;
+    };
+  }
+
+  async review({
+    id,
+    verdict,
+    reason,
+    rfi,
+  }: {
+    id: string;
+    verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
+    reason: string;
+    rfi?: string;
+  }) {
+    const response = await axios.post(
+      this.arva_instance.base_url + "/customer/review",
+      { customerId: id, verdict, reason, rfi },
+      {
+        headers: {
+          Authorization: `Bearer ${this.arva_instance.api_key}`,
+        },
+      }
+    );
+
+    return response.data as unknown;
+  }
+}
+
+export class Arva extends ArvaBase {
+  constructor(api_key: string) {
+    super(api_key, "http://platform.arva-ai.com/api/v0");
+  }
+}
+
+export class ArvaLocal extends ArvaBase {
+  constructor(api_key: string) {
+    super(api_key, "http://localhost:3000/api/v0");
+  }
+}
