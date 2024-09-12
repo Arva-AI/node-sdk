@@ -1,6 +1,6 @@
 {
   "name": "@arva-ai/sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": "https://github.com/Arva-AI/node-sdk",
   "description": "",
   "main": "dist/index.js",
