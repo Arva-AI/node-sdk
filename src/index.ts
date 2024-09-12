@@ -19,6 +19,10 @@ export type CreateCustomerInput = {
   state?: string;
 };
 
+export type CreateCustomerResponse = {
+  id: string;
+};
+
 export type UpdateCustomerInput = {
   id: string;
   userInfoPatch: Record<string, unknown>;
@@ -27,6 +31,21 @@ export type UpdateCustomerInput = {
     buffer: Buffer;
     name: string;
   }[];
+};
+
+export type UpdateCustomerResponse = {
+  success: boolean;
+  result:
+    | {
+        verdict: "ACCEPT" | "REJECT";
+        lowConfidence: boolean;
+        rfi: never;
+      }
+    | {
+        verdict: "REQUEST INFORMATION";
+        lowConfidence: boolean;
+        rfi: string;
+      };
 };
 
 export type ReviewCustomerInput = {
@@ -44,7 +63,7 @@ class Customers {
   }
 
   async create({ agentId, registeredName, state }: CreateCustomerInput) {
-    const response = await axios.post(
+    const response = await axios.post<CreateCustomerResponse>(
       this.arva_instance.base_url + "/customer/create",
       {
         agentId,
@@ -58,9 +77,7 @@ class Customers {
       }
     );
 
-    return response.data as {
-      id: string;
-    };
+    return response.data;
   }
 
   async update({ id, userInfoPatch, websites, files }: UpdateCustomerInput) {
@@ -85,13 +102,11 @@ class Customers {
       }
     );
 
-    return response.data as {
-      customerId: string;
-    };
+    return response.data as UpdateCustomerResponse;
   }
 
   async review({ id, verdict, reason, rfi }: ReviewCustomerInput) {
-    const response = await axios.post(
+    await axios.post(
       this.arva_instance.base_url + "/customer/review",
       { customerId: id, verdict, reason, rfi },
       {
@@ -100,8 +115,6 @@ class Customers {
         },
       }
     );
-
-    return response.data as unknown;
   }
 }
 
