@@ -1,14 +1,14 @@
 import axios from "axios";
 import FormData from "form-data";
 
-export class ArvaBase {
-  public api_key: string;
-  public base_url: string;
+export class Arva {
+  public apiKey: string;
+  public baseUrl: string;
   public customers: Customers;
 
-  constructor(api_key: string, base_url: string) {
-    this.api_key = api_key;
-    this.base_url = base_url;
+  constructor(apiKey: string, baseUrl = "https://platform.arva-ai.com/api/v0") {
+    this.apiKey = apiKey;
+    this.baseUrl = baseUrl;
     this.customers = new Customers(this);
   }
 }
@@ -56,15 +56,15 @@ export type ReviewCustomerInput = {
 };
 
 class Customers {
-  private arva_instance: ArvaBase;
+  private arvaInstance: Arva;
 
-  constructor(arva_instance: ArvaBase) {
-    this.arva_instance = arva_instance;
+  constructor(arvaInstance: Arva) {
+    this.arvaInstance = arvaInstance;
   }
 
   async create({ agentId, registeredName, state }: CreateCustomerInput) {
     const response = await axios.post<CreateCustomerResponse>(
-      this.arva_instance.base_url + "/customer/create",
+      this.arvaInstance.baseUrl + "/customer/create",
       {
         agentId,
         registeredName,
@@ -72,7 +72,7 @@ class Customers {
       },
       {
         headers: {
-          Authorization: `Bearer ${this.arva_instance.api_key}`,
+          Authorization: `Bearer ${this.arvaInstance.apiKey}`,
         },
       }
     );
@@ -92,11 +92,11 @@ class Customers {
     }
 
     const response = await axios.post(
-      this.arva_instance.base_url + "/customer/update",
+      this.arvaInstance.baseUrl + "/customer/update",
       form,
       {
         headers: {
-          Authorization: `Bearer ${this.arva_instance.api_key}`,
+          Authorization: `Bearer ${this.arvaInstance.apiKey}`,
           ...form.getHeaders(),
         },
       }
@@ -107,28 +107,13 @@ class Customers {
 
   async review({ id, verdict, reason, rfi }: ReviewCustomerInput) {
     await axios.post(
-      this.arva_instance.base_url + "/customer/review",
+      this.arvaInstance.baseUrl + "/customer/review",
       { customerId: id, verdict, reason, rfi },
       {
         headers: {
-          Authorization: `Bearer ${this.arva_instance.api_key}`,
+          Authorization: `Bearer ${this.arvaInstance.apiKey}`,
         },
       }
     );
-  }
-}
-
-export class Arva extends ArvaBase {
-  constructor(api_key: string) {
-    super(api_key, "http://platform.arva-ai.com/api/v0");
-  }
-}
-
-/**
- * This is just for testing against a local instance of the Arva API.
- */
-export class ArvaLocal extends ArvaBase {
-  constructor(api_key: string) {
-    super(api_key, "http://localhost:3000/api/v0");
   }
 }
