@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
 
-class ArvaBase {
+export class ArvaBase {
   public api_key: string;
   public base_url: string;
   public customers: Customers;
