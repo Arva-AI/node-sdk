@@ -13,6 +13,18 @@ export class Arva {
   }
 }
 
+export type Result =
+  | {
+      verdict: "ACCEPT" | "REJECT";
+      lowConfidence: boolean;
+      rfi: never;
+    }
+  | {
+      verdict: "REQUEST INFORMATION";
+      lowConfidence: boolean;
+      rfi: string;
+    };
+
 export type CreateCustomerInput = {
   agentId: string;
   registeredName: string;
@@ -33,27 +45,21 @@ export type UpdateCustomerInput = {
   }[];
 };
 
-export type UpdateCustomerResponse = {
-  success: boolean;
-  result:
-    | {
-        verdict: "ACCEPT" | "REJECT";
-        lowConfidence: boolean;
-        rfi: never;
-      }
-    | {
-        verdict: "REQUEST INFORMATION";
-        lowConfidence: boolean;
-        rfi: string;
-      };
+export type UpdateCustomerResponse = Result;
+
+export type GetCustomerByIdResponse = {
+  id: string;
+  name: string;
+  state: string;
+  createdAt: string;
+  isTest: boolean;
+  result?: Result;
 };
 
 export type ReviewCustomerInput = {
   id: string;
-  verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
   reason: string;
-  rfi?: string;
-};
+} & Result;
 
 class Customers {
   private arvaInstance: Arva;
@@ -91,7 +97,7 @@ class Customers {
       form.append("file", file.buffer, file.name);
     }
 
-    const response = await axios.post(
+    const response = await axios.post<UpdateCustomerResponse>(
       this.arvaInstance.baseUrl + "/customer/update",
       form,
       {
@@ -102,7 +108,20 @@ class Customers {
       }
     );
 
-    return response.data as UpdateCustomerResponse;
+    return response.data;
+  }
+
+  async getById(id: string) {
+    const response = await axios.get<GetCustomerByIdResponse>(
+      this.arvaInstance.baseUrl + `/customer/getById?id=${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${this.arvaInstance.apiKey}`,
+        },
+      }
+    );
+
+    return response.data;
   }
 
   async review({ id, verdict, reason, rfi }: ReviewCustomerInput) {
