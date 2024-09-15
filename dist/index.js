@@ -56,9 +56,19 @@ class Customers {
             return response.data;
         });
     }
-    review(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ id, verdict, reason, rfi }) {
-            yield axios_1.default.post(this.arvaInstance.baseUrl + "/customer/review", { customerId: id, verdict, reason, rfi }, {
+    getById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield axios_1.default.get(this.arvaInstance.baseUrl + `/customer/getById?id=${id}`, {
+                headers: {
+                    Authorization: `Bearer ${this.arvaInstance.apiKey}`,
+                },
+            });
+            return response.data;
+        });
+    }
+    review(input) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield axios_1.default.post(this.arvaInstance.baseUrl + "/customer/review", Object.assign({ customerId: input.id }, input), {
                 headers: {
                     Authorization: `Bearer ${this.arvaInstance.apiKey}`,
                 },

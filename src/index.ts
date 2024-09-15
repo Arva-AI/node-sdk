@@ -56,10 +56,18 @@ export type GetCustomerByIdResponse = {
   result?: Result;
 };
 
-export type ReviewCustomerInput = {
-  id: string;
-  reason: string;
-} & Result;
+export type ReviewCustomerInput =
+  | {
+      id: string;
+      verdict: "ACCEPT" | "REJECT";
+      reason: string;
+    }
+  | {
+      id: string;
+      verdict: "REQUEST INFORMATION";
+      reason: string;
+      rfi: string;
+    };
 
 class Customers {
   private arvaInstance: Arva;
@@ -124,10 +132,13 @@ class Customers {
     return response.data;
   }
 
-  async review({ id, verdict, reason, rfi }: ReviewCustomerInput) {
+  async review(input: ReviewCustomerInput) {
     await axios.post(
       this.arvaInstance.baseUrl + "/customer/review",
-      { customerId: id, verdict, reason, rfi },
+      {
+        customerId: input.id,
+        ...input,
+      },
       {
         headers: {
           Authorization: `Bearer ${this.arvaInstance.apiKey}`,

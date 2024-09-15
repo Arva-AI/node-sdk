@@ -8,11 +8,13 @@ describe("Test SDK methods", () => {
   let customerId: string;
 
   test("Create", async () => {
-    await client.customers.create({
+    const res = await client.customers.create({
       agentId: process.env.ARVA_AGENT_ID!,
       registeredName: "Arva AI Inc",
       state: "Delaware",
     });
+
+    customerId = res.id;
   });
 
   test("Update", async () => {
