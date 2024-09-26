@@ -8,13 +8,13 @@ describe("Test SDK methods", () => {
   let customerId: string;
 
   test("Create", async () => {
-    const { id } = await client.customers.create({
+    const res = await client.customers.create({
       agentId: process.env.ARVA_AGENT_ID!,
       registeredName: "Arva AI Inc",
       state: "Delaware",
     });
 
-    customerId = id;
+    customerId = res.id;
   });
 
   test("Update", async () => {
@@ -22,7 +22,7 @@ describe("Test SDK methods", () => {
       throw new Error("Customer ID is not set");
     }
 
-    await client.customers.update({
+    const res = await client.customers.update({
       id: customerId,
       userInfoPatch: {
         businessActivities:
@@ -32,6 +32,10 @@ describe("Test SDK methods", () => {
       files: [],
     });
   }, 60000);
+
+  test("Get by ID", async () => {
+    await client.customers.getById(customerId);
+  });
 
   test("Review", async () => {
     await client.customers.review({
