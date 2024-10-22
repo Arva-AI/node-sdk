@@ -45,16 +45,23 @@ export type UpdateCustomerInput = {
   }[];
 };
 
-export type UpdateCustomerResponse = Result;
+export type CheckResult = {
+  verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
+  confidence: number;
+  reason: string;
+  proofIds: string[];
+};
 
-export type GetCustomerByIdResponse = {
+export type CustomerResult = {
   id: string;
   name: string;
   state: string;
-  createdAt: string;
+  createdAt: Date;
   isTest: boolean;
-  result?: Result;
-};
+  checks: ({
+    type: string;
+  } & (CheckResult | {}))[];
+} & (Result | {});
 
 export type ReviewCustomerInput =
   | {
@@ -105,7 +112,7 @@ class Customers {
       form.append("file", file.buffer, file.name);
     }
 
-    const response = await axios.post<UpdateCustomerResponse>(
+    const response = await axios.post<CustomerResult>(
       this.arvaInstance.baseUrl + "/customer/update",
       form,
       {
@@ -120,7 +127,7 @@ class Customers {
   }
 
   async getById(id: string) {
-    const response = await axios.get<GetCustomerByIdResponse>(
+    const response = await axios.get<CustomerResult>(
       this.arvaInstance.baseUrl + `/customer/getById?id=${id}`,
       {
         headers: {
