@@ -30,15 +30,22 @@ export type UpdateCustomerInput = {
         name: string;
     }[];
 };
-export type UpdateCustomerResponse = Result;
-export type GetCustomerByIdResponse = {
+export type CheckResult = {
+    verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
+    confidence: number;
+    reason: string;
+    proofIds: string[];
+};
+export type CustomerResult = {
     id: string;
     name: string;
     state: string;
-    createdAt: string;
+    createdAt: Date;
     isTest: boolean;
-    result?: Result;
-};
+    checks: ({
+        type: string;
+    } & (CheckResult | {}))[];
+} & (Result | {});
 export type ReviewCustomerInput = {
     id: string;
     verdict: "ACCEPT" | "REJECT";
@@ -53,8 +60,8 @@ declare class Customers {
     private arvaInstance;
     constructor(arvaInstance: Arva);
     create({ agentId, registeredName, state }: CreateCustomerInput): Promise<CreateCustomerResponse>;
-    update({ id, userInfoPatch, websites, files }: UpdateCustomerInput): Promise<Result>;
-    getById(id: string): Promise<GetCustomerByIdResponse>;
+    update({ id, userInfoPatch, websites, files }: UpdateCustomerInput): Promise<CustomerResult>;
+    getById(id: string): Promise<CustomerResult>;
     review(input: ReviewCustomerInput): Promise<void>;
 }
 export {};
