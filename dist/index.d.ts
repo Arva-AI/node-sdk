@@ -41,7 +41,6 @@ export type CustomerResult = {
     name: string;
     state: string;
     createdAt: Date;
-    isTest: boolean;
     checks: ({
         type: string;
     } & (CheckResult | {}))[];
