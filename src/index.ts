@@ -15,14 +15,21 @@ export class Arva {
 
 export type Result =
   | {
-      verdict: "ACCEPT" | "REJECT";
-      lowConfidence: boolean;
+      verdict: "ACCEPT";
+      riskLevel: "LOW" | "MEDIUM" | "HIGH";
+      periodicReviewYears: number;
       rfi: never;
+      requiresManualReview: boolean;
     }
   | {
       verdict: "REQUEST INFORMATION";
-      lowConfidence: boolean;
       rfi: string;
+      requiresManualReview: boolean;
+    }
+  | {
+      verdict: "REJECT";
+      rfi: never;
+      requiresManualReview: boolean;
     };
 
 export type CreateCustomerInput = {
@@ -35,9 +42,16 @@ export type CreateCustomerResponse = {
   id: string;
 };
 
+export type UserInfoPatch = {
+  dba?: string;
+  natureOfBusiness?: string;
+  operatingAddress?: string;
+  tin?: string;
+} & Record<string, unknown>;
+
 export type UpdateCustomerInput = {
   id: string;
-  userInfoPatch: Record<string, unknown>;
+  userInfoPatch: UserInfoPatch;
   websites: string[];
   files: {
     buffer: Buffer;
@@ -45,9 +59,7 @@ export type UpdateCustomerInput = {
   }[];
 };
 
-export type CheckResult = {
-  verdict: "ACCEPT" | "REJECT" | "REQUEST INFORMATION";
-  confidence: number;
+export type CheckResult = Result & {
   reason: string;
   proofIds: string[];
 };
@@ -65,7 +77,8 @@ export type CustomerResult = {
 export type ReviewCustomerInput =
   | {
       id: string;
-      verdict: "ACCEPT" | "REJECT";
+      verdict: "ACCEPT";
+      riskLevel: "LOW" | "MEDIUM" | "HIGH";
       reason: string;
     }
   | {
@@ -73,6 +86,11 @@ export type ReviewCustomerInput =
       verdict: "REQUEST INFORMATION";
       reason: string;
       rfi: string;
+    }
+  | {
+      id: string;
+      verdict: "REJECT";
+      reason: string;
     };
 
 class Customers {

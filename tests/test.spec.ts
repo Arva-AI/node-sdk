@@ -37,42 +37,70 @@ describe("Test SDK methods", () => {
         businessActivities:
           "We build AI agents to automate compliance operations for banks and fintechs.",
       },
-      websites: ["https://arva-ai.com"],
+      websites: ["https://arva.io"],
       files: [],
     });
+
+    if (!("verdict" in res)) {
+      throw new Error("Verdict is not set");
+    }
 
     expect(res.id).toEqual(customerId);
     expect(res.name).toEqual("Arva AI Inc");
     expect(res.state).toEqual("Delaware");
-    expect((res as any).verdict).toEqual("REQUEST INFORMATION");
-    expect((res as any).rfi).toBeDefined();
-    expect(res.checks).toHaveLength(4);
+    expect(res.verdict).toEqual("REQUEST INFORMATION");
+    expect("riskLevel" in res).toBeFalsy();
+    expect(res.rfi).toBeDefined();
+    expect(res.rfi).toBeTruthy();
+    expect(res.checks).toHaveLength(6);
   }, 60000);
 
   test("Get by ID", async () => {
     const res = await client.customers.getById(customerId);
 
+    if (!("verdict" in res)) {
+      throw new Error("Verdict is not set");
+    }
+
     expect(res.id).toEqual(customerId);
     expect(res.name).toEqual("Arva AI Inc");
     expect(res.state).toEqual("Delaware");
-    expect((res as any).verdict).toEqual("REQUEST INFORMATION");
-    expect((res as any).rfi).toBeDefined();
-    expect(res.checks).toHaveLength(4);
+    expect(res.verdict).toEqual("REQUEST INFORMATION");
+    expect("riskLevel" in res).toBeFalsy();
+    expect(res.rfi).toBeDefined();
+    expect(res.rfi).toBeTruthy();
+    expect(res.checks).toHaveLength(6);
   });
 
   test("Review", async () => {
     await client.customers.review({
       id: customerId,
       verdict: "ACCEPT",
+      riskLevel: "LOW",
       reason: "This is a test",
     });
 
     const res = await client.customers.getById(customerId);
 
+    if (!("verdict" in res)) {
+      throw new Error("Verdict is not set");
+    }
+
+    if (!("riskLevel" in res)) {
+      throw new Error("Risk level is not set");
+    }
+
+    if (!("reason" in res)) {
+      throw new Error("Reason is not set");
+    }
+
     expect(res.id).toEqual(customerId);
     expect(res.name).toEqual("Arva AI Inc");
     expect(res.state).toEqual("Delaware");
-    expect((res as any).verdict).toEqual("ACCEPT");
-    expect((res as any).reason).toEqual("This is a test");
+    expect(res.verdict).toEqual("ACCEPT");
+    expect(res.riskLevel).toEqual("LOW");
+    expect(res.reason).toEqual("This is a test");
+    expect("rfi" in res).toBeFalsy();
+    expect(res.checks).toHaveLength(6);
   });
 });
