@@ -18,4 +18,4 @@ const client = new Arva(
 )
 ```
 
-Full docs [here](https://platform.arva-ai.com/docs).
+Full docs [here](https://platform.arva.ai/docs).

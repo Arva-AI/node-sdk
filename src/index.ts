@@ -6,7 +6,7 @@ export class Arva {
   public baseUrl: string;
   public customers: Customers;
 
-  constructor(apiKey: string, baseUrl = "https://platform.arva-ai.com/api/v0") {
+  constructor(apiKey: string, baseUrl = "https://platform.arva.ai/api/v0") {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
     this.customers = new Customers(this);

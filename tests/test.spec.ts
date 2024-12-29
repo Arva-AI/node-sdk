@@ -37,7 +37,7 @@ describe("Test SDK methods", () => {
         businessActivities:
           "We build AI agents to automate compliance operations for banks and fintechs.",
       },
-      websites: ["https://arva.io"],
+      websites: ["https://arva.ai"],
       files: [],
     });
 

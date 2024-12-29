@@ -16,7 +16,7 @@ exports.Arva = void 0;
 const axios_1 = __importDefault(require("axios"));
 const form_data_1 = __importDefault(require("form-data"));
 class Arva {
-    constructor(apiKey, baseUrl = "https://platform.arva-ai.com/api/v0") {
+    constructor(apiKey, baseUrl = "https://platform.arva.ai/api/v0") {
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
         this.customers = new Customers(this);
