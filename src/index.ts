@@ -64,7 +64,17 @@ export type CheckResult = Result & {
   proofIds: string[];
 };
 
-export type CustomerResult = {
+export type CustomerUpdateResult = {
+  id: string;
+  name: string;
+  state: string;
+  createdAt: Date;
+  checks: ({
+    type: string;
+  } & CheckResult)[];
+} & Result;
+
+export type CustomerStatus = {
   id: string;
   name: string;
   state: string;
@@ -129,7 +139,7 @@ class Customers {
       form.append("file", file.buffer, file.name);
     }
 
-    const response = await axios.post<CustomerResult>(
+    const response = await axios.post<CustomerUpdateResult>(
       this.arvaInstance.baseUrl + "/customer/update",
       form,
       {
@@ -144,7 +154,7 @@ class Customers {
   }
 
   async getById(id: string) {
-    const response = await axios.get<CustomerResult>(
+    const response = await axios.get<CustomerStatus>(
       this.arvaInstance.baseUrl + `/customer/getById?id=${id}`,
       {
         headers: {

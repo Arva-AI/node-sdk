@@ -46,7 +46,16 @@ export type CheckResult = Result & {
     reason: string;
     proofIds: string[];
 };
-export type CustomerResult = {
+export type CustomerUpdateResult = {
+    id: string;
+    name: string;
+    state: string;
+    createdAt: Date;
+    checks: ({
+        type: string;
+    } & CheckResult)[];
+} & Result;
+export type CustomerStatus = {
     id: string;
     name: string;
     state: string;
@@ -74,8 +83,8 @@ declare class Customers {
     private arvaInstance;
     constructor(arvaInstance: Arva);
     create({ agentId, registeredName, state }: CreateCustomerInput): Promise<CreateCustomerResponse>;
-    update({ id, userInfoPatch, websites, files }: UpdateCustomerInput): Promise<CustomerResult>;
-    getById(id: string): Promise<CustomerResult>;
+    update({ id, userInfoPatch, websites, files }: UpdateCustomerInput): Promise<CustomerUpdateResult>;
+    getById(id: string): Promise<CustomerStatus>;
     review(input: ReviewCustomerInput): Promise<void>;
 }
 export {};
