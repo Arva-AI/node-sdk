@@ -4,6 +4,8 @@ export declare class Arva {
     customers: Customers;
     constructor(apiKey: string, baseUrl?: string);
 }
+export declare const ALL_CHECK_TYPES: readonly ["INCORPORATION", "TIN", "BUSINESS_ACTIVITIES", "OPERATING_ADDRESS", "SCREENING", "ADVERSE_MEDIA", "APPLICANT", "OFFICERS", "DIRECTORS", "OWNERS", "OWNERSHIP_STRUCTURE"];
+export type CheckType = (typeof ALL_CHECK_TYPES)[number];
 export type Result = {
     verdict: "ACCEPT";
     riskLevel: "LOW" | "MEDIUM" | "HIGH";
@@ -29,6 +31,7 @@ export type CreateCustomerResponse = {
 };
 export type UserInfoPatch = {
     dba?: string;
+    companyNumber?: string;
     natureOfBusiness?: string;
     operatingAddress?: string;
     tin?: string;
@@ -41,6 +44,7 @@ export type UpdateCustomerInput = {
         buffer: Buffer;
         name: string;
     }[];
+    checks?: CheckType[];
 };
 export type CheckResult = Result & {
     reason: string;
@@ -53,7 +57,9 @@ export type CustomerUpdateResult = {
     createdAt: Date;
     checks: ({
         type: string;
-    } & CheckResult)[];
+    } & CheckResult & {
+        details?: Record<string, unknown>;
+    })[];
 } & Result;
 export type CustomerStatus = {
     id: string;
@@ -83,7 +89,7 @@ declare class Customers {
     private arvaInstance;
     constructor(arvaInstance: Arva);
     create({ agentId, registeredName, state }: CreateCustomerInput): Promise<CreateCustomerResponse>;
-    update({ id, userInfoPatch, websites, files }: UpdateCustomerInput): Promise<CustomerUpdateResult>;
+    update({ id, userInfoPatch, websites, files, checks, }: UpdateCustomerInput): Promise<CustomerUpdateResult>;
     getById(id: string): Promise<CustomerStatus>;
     review(input: ReviewCustomerInput): Promise<void>;
 }

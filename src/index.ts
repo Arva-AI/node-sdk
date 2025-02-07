@@ -13,6 +13,21 @@ export class Arva {
   }
 }
 
+export const ALL_CHECK_TYPES = [
+  "INCORPORATION",
+  "TIN",
+  "BUSINESS_ACTIVITIES",
+  "OPERATING_ADDRESS",
+  "SCREENING",
+  "ADVERSE_MEDIA",
+  "APPLICANT",
+  "OFFICERS",
+  "DIRECTORS",
+  "OWNERS",
+  "OWNERSHIP_STRUCTURE",
+] as const;
+export type CheckType = (typeof ALL_CHECK_TYPES)[number];
+
 export type Result =
   | {
       verdict: "ACCEPT";
@@ -44,6 +59,7 @@ export type CreateCustomerResponse = {
 
 export type UserInfoPatch = {
   dba?: string;
+  companyNumber?: string;
   natureOfBusiness?: string;
   operatingAddress?: string;
   tin?: string;
@@ -57,6 +73,7 @@ export type UpdateCustomerInput = {
     buffer: Buffer;
     name: string;
   }[];
+  checks?: CheckType[];
 };
 
 export type CheckResult = Result & {
@@ -71,7 +88,9 @@ export type CustomerUpdateResult = {
   createdAt: Date;
   checks: ({
     type: string;
-  } & CheckResult)[];
+  } & CheckResult & {
+      details?: Record<string, unknown>;
+    })[];
 } & Result;
 
 export type CustomerStatus = {
@@ -128,7 +147,13 @@ class Customers {
     return response.data;
   }
 
-  async update({ id, userInfoPatch, websites, files }: UpdateCustomerInput) {
+  async update({
+    id,
+    userInfoPatch,
+    websites,
+    files,
+    checks,
+  }: UpdateCustomerInput) {
     const form = new FormData();
 
     form.append("customerId", id);
@@ -137,6 +162,10 @@ class Customers {
 
     for (const file of files) {
       form.append("file", file.buffer, file.name);
+    }
+
+    if (checks) {
+      form.append("checks", JSON.stringify(checks));
     }
 
     const response = await axios.post<CustomerUpdateResult>(
