@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Arva = void 0;
+exports.ALL_CHECK_TYPES = exports.Arva = void 0;
 const axios_1 = __importDefault(require("axios"));
 const form_data_1 = __importDefault(require("form-data"));
 class Arva {
@@ -23,6 +23,19 @@ class Arva {
     }
 }
 exports.Arva = Arva;
+exports.ALL_CHECK_TYPES = [
+    "INCORPORATION",
+    "TIN",
+    "BUSINESS_ACTIVITIES",
+    "OPERATING_ADDRESS",
+    "SCREENING",
+    "ADVERSE_MEDIA",
+    "APPLICANT",
+    "OFFICERS",
+    "DIRECTORS",
+    "OWNERS",
+    "OWNERSHIP_STRUCTURE",
+];
 class Customers {
     constructor(arvaInstance) {
         this.arvaInstance = arvaInstance;
@@ -42,13 +55,16 @@ class Customers {
         });
     }
     update(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ id, userInfoPatch, websites, files }) {
+        return __awaiter(this, arguments, void 0, function* ({ id, userInfoPatch, websites, files, checks, }) {
             const form = new form_data_1.default();
             form.append("customerId", id);
             form.append("userInfoPatch", JSON.stringify(userInfoPatch));
             form.append("websites", JSON.stringify(websites));
             for (const file of files) {
                 form.append("file", file.buffer, file.name);
+            }
+            if (checks) {
+                form.append("checks", JSON.stringify(checks));
             }
             const response = yield axios_1.default.post(this.arvaInstance.baseUrl + "/customer/update", form, {
                 headers: Object.assign({ Authorization: `Bearer ${this.arvaInstance.apiKey}` }, form.getHeaders()),
