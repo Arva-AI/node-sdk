@@ -32,6 +32,7 @@ export type CreateCustomerResponse = {
 export type UserInfoPatch = {
     dba?: string;
     companyNumber?: string;
+    companyType?: string;
     natureOfBusiness?: string;
     operatingAddress?: string;
     tin?: string;
